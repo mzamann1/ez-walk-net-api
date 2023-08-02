@@ -5,7 +5,7 @@ namespace EZWalk.API.Context;
 
 public class WalkDbContext : DbContext
 {
-    public WalkDbContext(DbContextOptions options) : base(options)
+    public WalkDbContext(DbContextOptions<WalkDbContext> options) : base(options)
     {
     }
 

@@ -3,6 +3,7 @@ using EZWalk.API.Context;
 using EZWalk.API.DTOs.Region;
 using EZWalk.API.Models;
 using EZWalk.API.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +25,7 @@ public class RegionsController : ControllerBase
     // GET: api/Regions
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<RegionDTO>), StatusCodes.Status200OK)]
+    [Authorize(Roles = "Reader,Admin")]
     public async Task<ActionResult<IEnumerable<RegionDTO>>> GetRegions()
     {
         var list = await _regionRepository.GetAllAsync();
@@ -33,6 +35,8 @@ public class RegionsController : ControllerBase
     // GET: api/Regions/5
     [HttpGet("{id:Guid}")]
     [ProducesResponseType(typeof(RegionDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "Reader,Admin")]
 
     public async Task<ActionResult<Region>> GetById(Guid id)
     {
@@ -44,9 +48,10 @@ public class RegionsController : ControllerBase
     }
 
     // PUT: api/Regions/5
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut]
-
+    [Authorize(Roles = "Writer,Admin")]
+    [ProducesResponseType(typeof(RegionDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PutRegion([FromQuery] Guid id, [FromBody] UpdateRegionRequestDTO region)
     {
         try
@@ -58,23 +63,16 @@ public class RegionsController : ControllerBase
         }
         catch (Exception ex)
         {
-            if (ex is KeyNotFoundException)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return BadRequest(ex.Message);
-            }
+            return BadRequest(ex.Message);
         }
-
-
     }
 
     // POST: api/Regions
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
+    [Authorize(Roles = "Writer,Admin")]
     [ProducesResponseType(typeof(RegionDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+
     public async Task<ActionResult<Region>> CreateRegion([FromBody] AddRegionRequestDTO region)
     {
         var model = _mapper.Map<Region>(region);
@@ -88,6 +86,10 @@ public class RegionsController : ControllerBase
 
     // DELETE: api/Regions/5
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Writer,Admin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+
     public async Task<IActionResult> DeleteRegion(Guid id)
     {
         try
@@ -98,14 +100,7 @@ public class RegionsController : ControllerBase
         }
         catch (Exception ex)
         {
-            if (ex is KeyNotFoundException)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return BadRequest(ex.Message);
-            }
+            return BadRequest(ex.Message);
         }
     }
 }

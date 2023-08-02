@@ -11,6 +11,8 @@ using EZWalk.API.Repositories;
 using AutoMapper;
 using EZWalk.API.DTOs.Difficulty;
 using EZWalk.API.DTOs.Walk;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace EZWalk.API.Controllers
 {
@@ -29,6 +31,8 @@ namespace EZWalk.API.Controllers
 
         // GET: api/Difficulties
         [HttpGet]
+        [Authorize(Roles = "Reader,Admin")]
+        [ProducesResponseType(typeof(IEnumerable<DifficultyDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<DifficultyDto>>> GetDifficulties()
         {
             var list = await _difficultyRepository.GetAllAsync();
@@ -37,6 +41,9 @@ namespace EZWalk.API.Controllers
 
         // GET: api/Difficulties/5
         [HttpGet("{id:Guid}")]
+        [Authorize(Roles = "Reader,Admin")]
+        [ProducesResponseType(typeof(DifficultyDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<DifficultyDto>> GetDifficulty(Guid id)
         {
             var difficulty = await _difficultyRepository.GetByIdAsync(id);
@@ -50,8 +57,10 @@ namespace EZWalk.API.Controllers
         }
 
         // PUT: api/Difficulties/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id:Guid}")]
+        [Authorize(Roles = "Writer,Admin")]
+        [ProducesResponseType(typeof(DifficultyDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutDifficulty(Guid id, UpdateDifficultyRequestDto difficulty)
         {
             try
@@ -63,20 +72,14 @@ namespace EZWalk.API.Controllers
             }
             catch (Exception ex)
             {
-                if (ex is KeyNotFoundException)
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    return BadRequest(ex.Message);
-                }
+                return BadRequest(ex.Message);
             }
         }
 
         // POST: api/Difficulties
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "Writer,Admin")]
+        [ProducesResponseType(typeof(DifficultyDto), StatusCodes.Status201Created)]
         public async Task<ActionResult<DifficultyDto>> PostDifficulty(AddDifficultyRequestDto addDifficultyRequestDto)
         {
             var model = _mapper.Map<Difficulty>(addDifficultyRequestDto);
@@ -88,6 +91,9 @@ namespace EZWalk.API.Controllers
 
         // DELETE: api/Difficulties/5
         [HttpDelete("{id:Guid}")]
+        [Authorize(Roles = "Writer,Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteDifficulty(Guid id)
         {
             try
@@ -98,14 +104,7 @@ namespace EZWalk.API.Controllers
             }
             catch (Exception ex)
             {
-                if (ex is KeyNotFoundException)
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    return BadRequest(ex.Message);
-                }
+                return BadRequest(ex.Message);
             }
         }
 
