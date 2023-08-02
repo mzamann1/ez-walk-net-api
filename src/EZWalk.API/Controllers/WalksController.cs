@@ -31,9 +31,9 @@ namespace EZWalk.API.Controllers
 
         // GET: api/Walks
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Walk>>> GetWalks()
+        public async Task<ActionResult<IEnumerable<Walk>>> GetWalks([FromQuery] string? filterOn, [FromQuery] string? filterQuery, [FromQuery] string? sortBy, [FromQuery] bool? isAscending, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
-            var list = await _walkRepository.GetAllAsync();
+            var list = await _walkRepository.GetAllAsync(filterOn, filterQuery, sortBy, isAscending, pageNumber, pageSize);
             return Ok(_mapper.Map<List<WalkDto>>(list));
         }
 

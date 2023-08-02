@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EZWalk.API.Models
 {
-    [Table("Difficulty")]
+    [Table("Difficulties")]
     public class Difficulty 
     {
         [Key]

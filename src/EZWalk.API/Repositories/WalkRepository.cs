@@ -2,6 +2,7 @@
 using EZWalk.API.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing;
+using System.Linq;
 using Region = EZWalk.API.Models.Region;
 
 namespace EZWalk.API.Repositories
@@ -21,9 +22,39 @@ namespace EZWalk.API.Repositories
             return walk;
         }
 
-        public async Task<List<Walk>> GetAllAsync()
+        public async Task<List<Walk>> GetAllAsync(string? filterOn = null, string? filterQuery = null, string? sortBy = null, bool? isAscending = true, int pageNumber = 1, int pageSize = 25)
         {
-            return await _dbContext.Walks.Include(w => w.Difficulty).Include(w => w.Region).ToListAsync();
+            var walks = _dbContext.Walks.Include(w => w.Difficulty).Include(w => w.Region).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(filterOn) && !string.IsNullOrWhiteSpace(filterQuery))
+            {
+                if (filterOn.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                {
+                    walks = walks.Where(w => w.Name == filterQuery);
+                }
+                else if (filterOn.Equals("Description", StringComparison.OrdinalIgnoreCase))
+                {
+                    walks = walks.Where(w => w.Description == filterQuery);
+                }
+            }
+
+            walks = walks.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                if (sortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                {
+                    walks = isAscending.HasValue && isAscending.Value ? walks.OrderBy(w => w.Name) : walks.OrderByDescending(w => w.Name);
+                }
+                else if (sortBy.Equals("Description", StringComparison.OrdinalIgnoreCase))
+                {
+                    walks = isAscending.HasValue && isAscending.Value ? walks.OrderBy(w => w.Description) : walks.OrderByDescending(w => w.Description);
+                }
+
+            }
+
+            return await walks.ToListAsync();
+
         }
 
         public async Task<Walk> GetByIdAsync(Guid id)

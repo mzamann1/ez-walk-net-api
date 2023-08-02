@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EZWalk.API.Models
 {
-    [Table("Region")]
+    [Table("Regions")]
     public class Region 
     {
         [Key]
